@@ -2,7 +2,7 @@ import os
 import re
 import json
 
-workspace_dir = r"g:\我的雲端硬碟\APPS\多益單字書學習APP"
+workspace_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_dir = os.path.join(workspace_dir, "data")
 os.makedirs(data_dir, exist_ok=True)
 output_js = os.path.join(data_dir, "toeic_data.js")
@@ -26,7 +26,7 @@ def parse_day_file(day_num, fpath):
     
     current_sec = None
     for line in lines[1:]:
-        if "## 1. 主題情境對話" in line:
+        if re.match(r"^##\s*1\.\s+", line) or "主題情境" in line or "主題說明" in line or "主題漫畫" in line:
             current_sec = "story"
             continue
         elif "## 2. 核心單字" in line:

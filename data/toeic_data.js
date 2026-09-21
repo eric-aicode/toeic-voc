@@ -21671,7 +21671,7 @@ window.TOEIC_DATA = {
     "day": 22,
     "title": "緊急會議",
     "theme": "會議",
-    "story": "",
+    "story": "* **會議討論情境**：\n  * 「為了解決有爭議的 **agenda**，正在 **convene** 全體會議。」\n  * 「我有個好辦法。」\n  * 「再 **coordinate** 一下計畫吧！沒有 **unanimous** 的意見，要 **convince** 大家很難！」\n  * 「不行！這個方法我 **refute**。」\n  * 「因為大家無法達成 **consensus**，所以 **defer** 這次的會議。」\n  * 「呼～確定咖啡機的位置還真難啊～」\n  * 「放在辦公室中間吧！」 / 「放在我座位旁邊比較好！」\n\n---",
     "wordCount": 43,
     "words": [
       {
@@ -26705,7 +26705,7 @@ window.TOEIC_DATA = {
     "day": 27,
     "title": "友情與投資",
     "theme": "投資",
-    "story": "",
+    "story": "* **情境標題**：讓友情出現裂痕的投資\n* **對話內容**：\n  * 「社長啊！跟你看一個會讓你賺錢的 **lucrative** **investment** 如何？」\n  * 「投資情報？但股票市場本身並不 **inherently** **secure** 耶～」\n  * 「喔！你不覺得我有 **foresee** 股票市場的 **innate** 能力嗎？因為你是我朋友才特別告訴你的喔！」\n  * 「對啊！『上漲輪胎』一看就知道會漲～買進 **property** 然後大量售出我就瞎了！」\n  * (數天後) 「因新款汽車單胎失敗，輪胎類股正持續暴跌中！」\n\n---",
     "wordCount": 38,
     "words": [
       {
