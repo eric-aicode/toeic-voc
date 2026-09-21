@@ -593,7 +593,7 @@ class ToeicApp {
 
     this.studyDay = dayNum;
     this.studyIndex = 0;
-    this.studyWordList = dayData.words;
+    this.studyWordList = this.isShuffle ? this.shuffleArray(dayData.words) : [...dayData.words];
     this.isCardFlipped = false;
     this.isClozeMasked = false;
 
@@ -691,15 +691,29 @@ class ToeicApp {
     this.renderStudyCard();
   }
 
+  // Fisher-Yates 真正均勻隨機打亂演算法
+  shuffleArray(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   toggleShuffle() {
     this.isShuffle = !this.isShuffle;
     const btn = document.getElementById('btn-study-shuffle');
-    btn.style.color = this.isShuffle ? 'var(--accent-gold)' : '';
-    btn.style.borderColor = this.isShuffle ? 'var(--accent-gold)' : '';
     
     if (this.isShuffle) {
-      this.studyWordList = [...this.studyWordList].sort(() => 0.5 - Math.random());
+      btn.style.color = '#ffffff';
+      btn.style.background = 'var(--accent-gold)';
+      btn.style.borderColor = 'var(--accent-gold)';
+      this.studyWordList = this.shuffleArray(this.studyWordList);
     } else {
+      btn.style.color = '';
+      btn.style.background = '';
+      btn.style.borderColor = '';
       const dayData = this.data.days.find(d => d.day === this.studyDay);
       this.studyWordList = dayData ? [...dayData.words] : this.studyWordList;
     }
