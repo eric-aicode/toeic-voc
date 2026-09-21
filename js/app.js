@@ -10,7 +10,9 @@ class SoundEngine {
   constructor() {
     this.audioCtx = null;
     this.speechSynth = window.speechSynthesis;
-    this.enVoice = null;
+    this.voices = [];
+    this.accent = localStorage.getItem('TOEIC_ACCENT') || 'us'; // 'us', 'uk', 'au', 'random'
+    this.speechRate = parseFloat(localStorage.getItem('TOEIC_RATE') || '0.95');
     this.initVoices();
   }
 
@@ -24,11 +26,7 @@ class SoundEngine {
   initVoices() {
     if (!this.speechSynth) return;
     const loadVoices = () => {
-      const voices = this.speechSynth.getVoices();
-      // 優先尋找美式英文語音
-      this.enVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('David'))) 
-                  || voices.find(v => v.lang.startsWith('en')) 
-                  || null;
+      this.voices = this.speechSynth.getVoices();
     };
     loadVoices();
     if (this.speechSynth.onvoiceschanged !== undefined) {
@@ -36,13 +34,45 @@ class SoundEngine {
     }
   }
 
-  speak(text, rate = 0.95) {
+  getVoiceForAccent(accent) {
+    if (!this.voices || !this.voices.length) {
+      this.voices = this.speechSynth ? this.speechSynth.getVoices() : [];
+    }
+    let targetLang = 'en-US';
+    if (accent === 'uk') targetLang = 'en-GB';
+    if (accent === 'au') targetLang = 'en-AU';
+    if (accent === 'random') {
+      const accents = ['en-US', 'en-GB', 'en-AU'];
+      targetLang = accents[Math.floor(Math.random() * accents.length)];
+    }
+
+    // 尋找對應語言的優質自然語音
+    const matched = this.voices.find(v => v.lang === targetLang && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel') || v.name.includes('Karen')))
+                 || this.voices.find(v => v.lang === targetLang)
+                 || this.voices.find(v => v.lang.startsWith(targetLang.slice(0, 2)))
+                 || null;
+    return matched;
+  }
+
+  setAccent(newAccent) {
+    this.accent = newAccent;
+    localStorage.setItem('TOEIC_ACCENT', newAccent);
+  }
+
+  setSpeechRate(rate) {
+    this.speechRate = rate;
+    localStorage.setItem('TOEIC_RATE', rate.toString());
+  }
+
+  speak(text, customRate = null) {
     if (!this.speechSynth) return;
-    this.speechSynth.cancel(); // 停止先前的朗讀
+    this.speechSynth.cancel();
     const cleanText = text.replace(/[*_#\[\]]/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = rate;
-    if (this.enVoice) utterance.voice = this.enVoice;
+    utterance.rate = customRate || this.speechRate;
+    
+    const voice = this.getVoiceForAccent(this.accent);
+    if (voice) utterance.voice = voice;
     this.speechSynth.speak(utterance);
   }
 
@@ -468,6 +498,64 @@ class ToeicApp {
       this.startWeakWordsQuiz();
     });
 
+    // SRS Review Trigger Buttons
+    const triggerSrsReview = () => this.startSrsReviewMode();
+    const btnSrs = document.getElementById('btn-srs-review');
+    if (btnSrs) btnSrs.addEventListener('click', triggerSrsReview);
+    const cardSrs = document.getElementById('card-due-srs-trigger');
+    if (cardSrs) cardSrs.addEventListener('click', triggerSrsReview);
+
+    // Audio Settings Modal Events
+    const audioModal = document.getElementById('audio-settings-modal');
+    const btnAudioSettings = document.getElementById('btn-audio-settings');
+    if (btnAudioSettings && audioModal) {
+      btnAudioSettings.addEventListener('click', () => {
+        document.querySelectorAll('.btn-accent-opt').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.accent === this.sound.accent);
+        });
+        document.querySelectorAll('.btn-rate-opt').forEach(btn => {
+          btn.classList.toggle('active', parseFloat(btn.dataset.rate) === this.sound.speechRate);
+        });
+        audioModal.classList.add('open');
+      });
+    }
+
+    document.querySelectorAll('.btn-accent-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-accent-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.sound.setAccent(btn.dataset.accent);
+      });
+    });
+
+    document.querySelectorAll('.btn-rate-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-rate-opt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.sound.setSpeechRate(parseFloat(btn.dataset.rate));
+      });
+    });
+
+    const btnAudioTest = document.getElementById('btn-audio-test');
+    if (btnAudioTest) {
+      btnAudioTest.addEventListener('click', () => {
+        this.sound.speak("Welcome to TOEIC Master. Let's start practicing!");
+      });
+    }
+
+    const btnAudioSave = document.getElementById('btn-audio-save');
+    if (btnAudioSave && audioModal) {
+      btnAudioSave.addEventListener('click', () => {
+        audioModal.classList.remove('open');
+      });
+    }
+
+    if (audioModal) {
+      audioModal.addEventListener('click', (e) => {
+        if (e.target === audioModal) audioModal.classList.remove('open');
+      });
+    }
+
     // Desktop Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       // 僅在 Study Mode 啟用快捷鍵
@@ -521,6 +609,8 @@ class ToeicApp {
     document.getElementById('level-title').textContent = levelName;
     document.getElementById('stat-mastered').textContent = masteredCount;
     document.getElementById('stat-due-srs').textContent = dueSrsCount;
+    const btnSrsCount = document.getElementById('btn-srs-count');
+    if (btnSrsCount) btnSrsCount.textContent = dueSrsCount;
     document.getElementById('stat-power-score').textContent = estScore;
     document.getElementById('stat-days-active').textContent = slot.totalDaysActive || 1;
     document.getElementById('current-day-num').textContent = slot.currentDay || 1;
@@ -582,8 +672,49 @@ class ToeicApp {
   }
 
   // =============================================================================
-  // Flashcard Study Mode Logic
+  // Flashcard Study & SRS Review Mode Logic
   // =============================================================================
+  startSrsReviewMode() {
+    const slot = this.saveManager.getActiveSlot();
+    const wordStatus = slot.wordStatus || {};
+    const now = Date.now();
+
+    // 收集所有到期 (nextDue <= now) 或 曾被評估為待加強 (box === 1) 的單字
+    const dueWordIds = [];
+    Object.keys(wordStatus).forEach(id => {
+      const st = wordStatus[id];
+      if ((st.nextDue && st.nextDue <= now) || (st.box === 1)) {
+        dueWordIds.push(id);
+      }
+    });
+
+    const dueWords = [];
+    this.data.days.forEach(d => {
+      d.words.forEach(w => {
+        if (dueWordIds.includes(w.id)) {
+          dueWords.push(w);
+        }
+      });
+    });
+
+    if (!dueWords.length) {
+      alert('🎉 太棒了！目前暫無艾賓浩斯到期的待複習單字。\n您可以前往「單元課程」繼續背誦新單元，或至「錯題庫」主動加強！');
+      return;
+    }
+
+    this.studyDay = null; // 特別標記為跨單元 SRS 模式
+    this.studyIndex = 0;
+    this.studyWordList = this.isShuffle ? this.shuffleArray(dueWords) : [...dueWords];
+    this.isCardFlipped = false;
+    this.isClozeMasked = false;
+
+    document.getElementById('study-day-badge').textContent = `🔔 SRS 間隔精熟複習 (${dueWords.length} 詞)`;
+    document.getElementById('story-drawer-content').textContent = '（SRS 間隔重複精熟模式：專注消滅遺忘曲線上的弱點單字）';
+
+    this.switchView('view-study');
+    this.renderStudyCard();
+  }
+
   startStudyMode(dayNum) {
     const dayData = this.data.days.find(d => d.day === dayNum);
     if (!dayData || !dayData.words.length) {
@@ -628,8 +759,33 @@ class ToeicApp {
     const starStr = '★'.repeat(word.stars || 1);
     document.getElementById('card-stars').textContent = starStr;
 
-    // Bookmark
+    // SRS Mastery Badge
     const slot = this.saveManager.getActiveSlot();
+    const srsBadge = document.getElementById('card-srs-badge');
+    if (srsBadge) {
+      const wordStatus = (slot.wordStatus && slot.wordStatus[word.id]) || null;
+      if (!wordStatus || !wordStatus.box) {
+        srsBadge.textContent = '🌱 初學單字';
+        srsBadge.className = 'card-srs-badge';
+      } else if (wordStatus.box === 1) {
+        srsBadge.textContent = '🔴 Lv.1 待加強';
+        srsBadge.className = 'card-srs-badge box-1';
+      } else if (wordStatus.box === 2) {
+        srsBadge.textContent = '🟠 Lv.2 複習 1 階';
+        srsBadge.className = 'card-srs-badge box-1';
+      } else if (wordStatus.box === 3) {
+        srsBadge.textContent = '🟡 Lv.3 熟悉 (3天)';
+        srsBadge.className = 'card-srs-badge box-3';
+      } else if (wordStatus.box === 4) {
+        srsBadge.textContent = '🟢 Lv.4 牢固 (7天)';
+        srsBadge.className = 'card-srs-badge box-3';
+      } else if (wordStatus.box >= 5) {
+        srsBadge.textContent = '👑 Lv.5 精熟掌握';
+        srsBadge.className = 'card-srs-badge box-5';
+      }
+    }
+
+    // Bookmark
     const isBookmarked = (slot.bookmarks || []).includes(word.id);
     const bkmkBtn = document.getElementById('card-bookmark-btn');
     bkmkBtn.textContent = isBookmarked ? '★' : '☆';
@@ -782,7 +938,11 @@ class ToeicApp {
       this.studyIndex++;
       this.renderStudyCard();
     } else {
-      alert(`🎉 恭喜完成 Day ${this.studyDay} 單字學習！建議進行一次 Part 5 克漏字實戰測驗加強記憶！`);
+      if (this.studyDay) {
+        alert(`🎉 恭喜完成 Day ${this.studyDay} 單字學習！建議進行一次 Part 5 克漏字實戰測驗加強記憶！`);
+      } else {
+        alert(`🎉 恭喜完成本次 SRS 間隔精熟複習！您的多益記憶庫已成功抗遺忘！`);
+      }
       this.switchView('view-home');
     }
   }

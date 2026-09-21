@@ -50,6 +50,7 @@
         <div class="stat-pill level" id="level-pill" title="多益戰力等級">
           <span>🛡️</span> <span id="level-title">Lv.1 新手</span>
         </div>
+        <button class="icon-btn" id="btn-audio-settings" title="多國口音與語速設定">🗣️</button>
         <button class="icon-btn" id="theme-toggle-btn" title="切換深色/淺色模式">🌓</button>
       </div>
     </header>
@@ -68,8 +69,8 @@
             <span class="hero-stat-label">已掌握單字</span>
             <span class="hero-stat-val gold" id="stat-mastered">0</span>
           </div>
-          <div class="hero-stat-card">
-            <span class="hero-stat-label">今日待複習 (SRS)</span>
+          <div class="hero-stat-card clickable" id="card-due-srs-trigger" title="點擊直接進行今日複習" style="cursor: pointer;">
+            <span class="hero-stat-label">今日待複習 (SRS) 🔔</span>
             <span class="hero-stat-val rose" id="stat-due-srs">0</span>
           </div>
           <div class="hero-stat-card">
@@ -85,6 +86,9 @@
         <div class="hero-actions">
           <button class="btn-primary" id="btn-quick-study">
             <span>🚀 進入今日學習 (Day <span id="current-day-num">1</span>)</span>
+          </button>
+          <button class="btn-secondary" id="btn-srs-review" title="根據艾賓浩斯遺忘曲線，集中複習到期單字">
+            <span>🔔 今日 SRS 複習 (<span id="btn-srs-count">0</span>)</span>
           </button>
           <button class="btn-secondary" id="btn-quick-quiz">
             <span>🎯 Part 5 例句克漏字測驗</span>
@@ -134,9 +138,12 @@
         <div class="flashcard" id="flashcard">
           <!-- Front Face -->
           <div class="card-face card-front">
-            <div class="card-stars" id="card-stars">★★★</div>
-            <button class="card-bookmark-btn" id="card-bookmark-btn" title="加入生詞本">☆</button>
-            <div class="card-word" id="card-front-word">résumé</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; position: absolute; top: 16px; padding: 0 20px;">
+              <div class="card-stars" id="card-stars" style="position: static;">★★★</div>
+              <div class="card-srs-badge" id="card-srs-badge">🌱 初學</div>
+              <button class="card-bookmark-btn" id="card-bookmark-btn" title="加入生詞本" style="position: static;">☆</button>
+            </div>
+            <div class="card-word" id="card-front-word" style="margin-top: 30px;">résumé</div>
             <div class="card-phonetic" id="card-front-phonetic">[ˈrɛzʊme]</div>
             <button class="card-audio-btn" id="btn-audio-front">
               <span>🔊 發音</span>
@@ -327,6 +334,56 @@
         <div class="modal-actions">
           <button class="btn-secondary" id="btn-modal-close">關閉</button>
           <button class="btn-primary" id="btn-modal-action">複製代碼</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Audio & Accent Settings -->
+    <div class="modal-overlay" id="audio-settings-modal">
+      <div class="modal-box" style="max-width: 440px;">
+        <h3 class="modal-title">🗣️ 多益真人發音與口音設定</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          新制多益涵蓋美、英、澳等國口音。您可以自由切換指定口音，或開啟「多益隨機考場模式」！
+        </p>
+        
+        <div style="margin-bottom: 18px;">
+          <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">選擇聽力口音 (Accent)</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn-accent-opt active" data-accent="us">
+              <span>🇺🇸 美式英語</span>
+              <small style="display:block; opacity:0.75; font-size:0.72rem;">標準主流考題</small>
+            </button>
+            <button class="btn-accent-opt" data-accent="uk">
+              <span>🇬🇧 英式英語</span>
+              <small style="display:block; opacity:0.75; font-size:0.72rem;">正統倫敦腔</small>
+            </button>
+            <button class="btn-accent-opt" data-accent="au">
+              <span>🇦🇺 澳式英語</span>
+              <small style="display:block; opacity:0.75; font-size:0.72rem;">澳洲特色連音</small>
+            </button>
+            <button class="btn-accent-opt" data-accent="random">
+              <span>🎲 隨機多益考場</span>
+              <small style="display:block; opacity:0.75; font-size:0.72rem;">每題隨機口音模擬</small>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px;">朗讀語速 (Speech Rate)</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-rate-opt" data-rate="0.8">0.8x 慢速精聽</button>
+            <button class="btn-rate-opt active" data-rate="0.95">1.0x 標準考速</button>
+            <button class="btn-rate-opt" data-rate="1.2">1.2x 挑戰高速</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+          <button class="btn-secondary" id="btn-audio-test" style="font-size: 0.85rem; padding: 6px 14px;">
+            <span>🔊 試聽效果</span>
+          </button>
+          <button class="btn-primary" id="btn-audio-save" style="font-size: 0.85rem; padding: 6px 18px;">
+            <span>完成設定</span>
+          </button>
         </div>
       </div>
     </div>

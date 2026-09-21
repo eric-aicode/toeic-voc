@@ -1127,3 +1127,116 @@ body {
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* ==========================================================================
+   Audio & Accent Settings & SRS Enhancements
+   ========================================================================== */
+.card-srs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.card-srs-badge.box-1 {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: var(--accent-rose);
+}
+
+.card-srs-badge.box-3 {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--accent-gold);
+}
+
+.card-srs-badge.box-5 {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--accent-emerald);
+}
+
+.hero-stat-card.clickable {
+  transition: var(--transition-fast);
+}
+
+.hero-stat-card.clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-rose);
+  box-shadow: 0 4px 14px var(--accent-rose-glow);
+}
+
+#btn-srs-review {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.35);
+  color: #f43f5e;
+}
+
+#btn-srs-review:hover {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: #f43f5e;
+}
+
+.btn-accent-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+}
+
+.btn-accent-opt span {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.btn-accent-opt:hover {
+  border-color: var(--accent-blue);
+  background: var(--bg-card-hover);
+}
+
+.btn-accent-opt.active {
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 12px var(--accent-blue-glow);
+}
+
+.btn-rate-opt {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-rate-opt:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+}
+
+.btn-rate-opt.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
