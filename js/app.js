@@ -276,6 +276,7 @@ class ToeicApp {
     this.studyWordList = [];
     this.isCardFlipped = false;
     this.isClozeMasked = false;
+    this.isShuffle = false;
 
     // Quiz Mode State
     this.quizQueue = [];
@@ -366,6 +367,7 @@ class ToeicApp {
 
     document.getElementById('btn-study-back').addEventListener('click', () => this.switchView('view-home'));
     document.getElementById('btn-study-cloze-toggle').addEventListener('click', () => this.toggleClozeMask());
+    document.getElementById('btn-study-shuffle').addEventListener('click', () => this.toggleShuffle());
 
     document.getElementById('story-drawer-toggle').addEventListener('click', () => {
       const drawer = document.getElementById('story-drawer');
@@ -686,6 +688,22 @@ class ToeicApp {
     this.isClozeMasked = !this.isClozeMasked;
     const btn = document.getElementById('btn-study-cloze-toggle');
     btn.style.color = this.isClozeMasked ? 'var(--accent-blue)' : '';
+    this.renderStudyCard();
+  }
+
+  toggleShuffle() {
+    this.isShuffle = !this.isShuffle;
+    const btn = document.getElementById('btn-study-shuffle');
+    btn.style.color = this.isShuffle ? 'var(--accent-gold)' : '';
+    btn.style.borderColor = this.isShuffle ? 'var(--accent-gold)' : '';
+    
+    if (this.isShuffle) {
+      this.studyWordList = [...this.studyWordList].sort(() => 0.5 - Math.random());
+    } else {
+      const dayData = this.data.days.find(d => d.day === this.studyDay);
+      this.studyWordList = dayData ? [...dayData.words] : this.studyWordList;
+    }
+    this.studyIndex = 0;
     this.renderStudyCard();
   }
 
