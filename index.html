@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>多益單字大師 - TOEIC 30-Day Master App</title>
+  <meta name="description" content="新制多益高頻核心單字 30 天沉浸式科學記憶 APP，包含主題情境故事、例句挖空克漏字測驗、艾賓浩斯間隔重複與多槽位存檔系統。">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Sticky Bar -->
+    <header class="top-nav">
+      <div class="brand" id="nav-brand" title="返回首頁">
+        <span class="brand-icon">⚡</span>
+        <div>
+          <span class="brand-title">TOEIC MASTER</span>
+          <span class="brand-badge">30 DAYS</span>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="desktop-nav-links">
+        <div class="nav-link active" data-target="view-home"><span>🏠</span> 首頁</div>
+        <div class="nav-link" data-target="view-days"><span>📚</span> 單元課程</div>
+        <div class="nav-link" data-target="view-quiz"><span>🎯</span> Part 5 測驗</div>
+        <div class="nav-link" data-target="view-bookmarks"><span>⭐</span> 生詞錯題</div>
+        <div class="nav-link" data-target="view-saves"><span>💾</span> 存檔管理</div>
+      </nav>
+
+      <!-- Stat Badges -->
+      <div class="nav-stats">
+        <div class="stat-pill streak" id="streak-pill" title="連續打卡天數">
+          <span>🔥</span> <span id="streak-count">1</span> 天
+        </div>
+        <div class="stat-pill level" id="level-pill" title="多益戰力等級">
+          <span>🛡️</span> <span id="level-title">Lv.1 新手</span>
+        </div>
+        <button class="icon-btn" id="theme-toggle-btn" title="切換深色/淺色模式">🌓</button>
+      </div>
+    </header>
+
+    <!-- =========================================================================
+         VIEW 1: Home Dashboard
+         ========================================================================= -->
+    <main id="view-home" class="main-view active">
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <h1 class="hero-title" id="hero-greeting">早安，多益戰士！</h1>
+        <p class="hero-subtitle">利用艾賓浩斯黃金間隔重複，消滅即將遺忘的單字，鍛鍊多益直覺！</p>
+        
+        <div class="hero-stats-row">
+          <div class="hero-stat-card">
+            <span class="hero-stat-label">已掌握單字</span>
+            <span class="hero-stat-val gold" id="stat-mastered">0</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="hero-stat-label">今日待複習 (SRS)</span>
+            <span class="hero-stat-val rose" id="stat-due-srs">0</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="hero-stat-label">多益預估戰力</span>
+            <span class="hero-stat-val blue" id="stat-power-score">550+</span>
+          </div>
+          <div class="hero-stat-card">
+            <span class="hero-stat-label">學習總天數</span>
+            <span class="hero-stat-val green" id="stat-days-active">1</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn-primary" id="btn-quick-study">
+            <span>🚀 進入今日學習 (Day <span id="current-day-num">1</span>)</span>
+          </button>
+          <button class="btn-secondary" id="btn-quick-quiz">
+            <span>🎯 Part 5 例句克漏字測驗</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Section: Day Selection Grid -->
+      <div class="section-title">
+        <span>30 天全單元主題課程</span>
+        <span class="section-link" id="link-all-days">查看全部 30 單元 →</span>
+      </div>
+      <div class="days-grid" id="home-days-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         VIEW 2: Flashcard Study Mode
+         ========================================================================= -->
+    <main id="view-study" class="main-view">
+      <div class="study-header">
+        <button class="icon-btn" id="btn-study-back" title="返回">←</button>
+        <div class="study-progress-info">
+          <span class="day-badge" id="study-day-badge">Day 01</span>
+          <span class="study-progress-text" id="study-progress-counter">1 / 40</span>
+        </div>
+        <button class="icon-btn" id="btn-study-cloze-toggle" title="切換主動遮罩">👁️</button>
+      </div>
+
+      <!-- Story Drawer (Comic Context) -->
+      <div class="story-drawer" id="story-drawer">
+        <div class="story-drawer-header" id="story-drawer-toggle">
+          <span>📖 查看本單元主題情境故事</span>
+          <span id="story-drawer-arrow">▼</span>
+        </div>
+        <div class="story-drawer-content" id="story-drawer-content">
+          <!-- Story content inserted by JS -->
+        </div>
+      </div>
+
+      <!-- 3D Flashcard Container -->
+      <div class="flashcard-container">
+        <div class="flashcard" id="flashcard">
+          <!-- Front Face -->
+          <div class="card-face card-front">
+            <div class="card-stars" id="card-stars">★★★</div>
+            <button class="card-bookmark-btn" id="card-bookmark-btn" title="加入生詞本">☆</button>
+            <div class="card-word" id="card-front-word">résumé</div>
+            <div class="card-phonetic" id="card-front-phonetic">[ˈrɛzʊme]</div>
+            <button class="card-audio-btn" id="btn-audio-front">
+              <span>🔊 發音</span>
+            </button>
+            <div class="card-hint-text">點擊卡片翻面看釋義、考點與雙語例句（或按空白鍵）</div>
+          </div>
+
+          <!-- Back Face -->
+          <div class="card-face card-back">
+            <div class="card-back-header">
+              <span class="card-back-word" id="card-back-word">résumé</span>
+              <button class="icon-btn" id="btn-audio-back" title="播放發音">🔊</button>
+            </div>
+            
+            <div class="card-pos-meanings" id="card-pos-meanings">
+              <!-- Rendered by JS -->
+            </div>
+
+            <div class="card-example-box" id="card-example-box">
+              <div class="example-en" id="card-example-en">Fax your résumé and cover letter.</div>
+              <div class="example-zh" id="card-example-zh">請把你的履歷表傳真到號碼。</div>
+              <button class="card-audio-btn" id="btn-audio-example" style="margin-top: 8px; font-size: 0.8rem; padding: 4px 12px;">
+                <span>🔊 聽例句朗讀</span>
+              </button>
+            </div>
+
+            <div class="card-tips-box" id="card-tips-box">
+              <div class="card-tips-title">💡 多益出題重點與搭配詞</div>
+              <div id="card-tips-content">常考短語...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluation Controls (Leitner SRS Boxes) -->
+      <div class="eval-controls">
+        <button class="btn-eval hard" id="btn-eval-hard">
+          <span>🔴 還不熟</span>
+          <small>今日再背 2 次</small>
+        </button>
+        <button class="btn-eval good" id="btn-eval-good">
+          <span>🟡 有點印象</span>
+          <small>3 天後複習</small>
+        </button>
+        <button class="btn-eval easy" id="btn-eval-easy">
+          <span>🟢 完全掌握</span>
+          <small>移入熟練箱</small>
+        </button>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         VIEW 3: Part 5 Cloze Quiz Mode
+         ========================================================================= -->
+    <main id="view-quiz" class="main-view">
+      <div class="quiz-container">
+        <div class="quiz-header">
+          <div>
+            <span class="day-badge" id="quiz-badge">Part 5 實戰克漏字</span>
+            <span style="font-weight: 700; margin-left: 8px;" id="quiz-counter">第 1 / 10 題</span>
+          </div>
+          <div class="combo-badge" id="combo-badge">🔥 COMBO x3</div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-question-type">Part 5: Incomplete Sentences 實戰題</div>
+          <div class="quiz-sentence" id="quiz-sentence">
+            Applicants must <span class="cloze-blank">______</span> all the requirements for the job.
+          </div>
+          <div class="quiz-translation" id="quiz-translation">
+            （應徵者必須符合這份工作的所有必要條件。）
+          </div>
+
+          <div class="quiz-options" id="quiz-options">
+            <!-- 4 Options rendered by JS -->
+          </div>
+
+          <div class="quiz-feedback-box" id="quiz-feedback-box">
+            <!-- Correct / Wrong feedback rendered by JS -->
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button class="btn-primary" id="btn-quiz-next" style="display: none;">
+            <span>下一題 →</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         VIEW 4: All 30 Days Selection
+         ========================================================================= -->
+    <main id="view-days" class="main-view">
+      <div class="section-title">
+        <span>全部 30 天單元課程</span>
+      </div>
+      <div class="days-grid" id="all-days-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         VIEW 5: Save Slots Manager (Game Save/Load System)
+         ========================================================================= -->
+    <main id="view-saves" class="main-view">
+      <div class="save-slots-container">
+        <div class="section-title">
+          <span>🎮 遊戲進度存檔記憶卡（Save Slots）</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          您可以像電視遊樂器記憶卡一樣，保存多組不同的學習進度（例如主要進度、弱點二刷、考前衝刺）。點擊即可秒切換進度！
+        </p>
+
+        <div id="slots-list">
+          <!-- Rendered by JS: Slot 1 ~ Slot 5 -->
+        </div>
+
+        <div class="section-title" style="margin-top: 30px;">
+          <span>進度備份與跨設備同步</span>
+        </div>
+        
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+          <button class="btn-secondary" id="btn-export-file">
+            <span>💾 匯出存檔檔案 (.json)</span>
+          </button>
+          <label class="btn-secondary" style="cursor: pointer;">
+            <span>📂 載入存檔檔案</span>
+            <input type="file" id="file-import-input" accept=".json" style="display: none;">
+          </label>
+          <button class="btn-secondary" id="btn-show-save-code">
+            <span>🔑 產生通關存檔密碼</span>
+          </button>
+          <button class="btn-secondary" id="btn-load-save-code">
+            <span>📥 貼上存檔碼還原</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- =========================================================================
+         VIEW 6: Bookmarks & Weak Words
+         ========================================================================= -->
+    <main id="view-bookmarks" class="main-view">
+      <div class="section-title">
+        <span>⭐ 生詞本與待加強錯題庫</span>
+        <button class="btn-primary" id="btn-quiz-weak" style="font-size: 0.85rem; padding: 6px 14px;">
+          <span>針對待加強字測驗</span>
+        </button>
+      </div>
+      <div id="bookmarks-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Rendered by JS -->
+      </div>
+    </main>
+
+    <!-- Bottom Mobile Nav Bar -->
+    <nav class="bottom-nav">
+      <div class="bottom-tab active" data-target="view-home">
+        <i>🏠</i>
+        <span>首頁</span>
+      </div>
+      <div class="bottom-tab" data-target="view-days">
+        <i>📚</i>
+        <span>課程</span>
+      </div>
+      <div class="bottom-tab" data-target="view-quiz">
+        <i>🎯</i>
+        <span>測驗</span>
+      </div>
+      <div class="bottom-tab" data-target="view-bookmarks">
+        <i>⭐</i>
+        <span>錯題</span>
+      </div>
+      <div class="bottom-tab" data-target="view-saves">
+        <i>💾</i>
+        <span>存檔</span>
+      </div>
+    </nav>
+
+    <!-- Modal for Save Code -->
+    <div class="modal-overlay" id="save-code-modal">
+      <div class="modal-box">
+        <h3 class="modal-title" id="modal-title">通關存檔密碼</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;" id="modal-desc">
+          複製以下代碼，在手機或電腦直接貼上即可秒恢復所有進度！
+        </p>
+        <textarea class="modal-textarea" id="modal-textarea" readonly></textarea>
+        <div class="modal-actions">
+          <button class="btn-secondary" id="btn-modal-close">關閉</button>
+          <button class="btn-primary" id="btn-modal-action">複製代碼</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Load TOEIC 30-Day Data -->
+  <script src="data/toeic_data.js"></script>
+  <!-- Load Main Application Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>
